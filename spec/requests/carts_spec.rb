@@ -26,7 +26,7 @@ RSpec.describe "/carts", type: :request do
     context "when adding a new product to the cart" do
       it "creates a new cart item and returns the cart" do
         expect {
-          post '/cart', params: { product_id: product.id, quantity: 2 }
+          post '/cart/add_item', params: { product_id: product.id, quantity: 2 }
         }.to change(CartItem, :count).by(1)
 
         expect(response).to have_http_status(:created)
@@ -44,7 +44,7 @@ RSpec.describe "/carts", type: :request do
 
       it "updates the quantity of the existing cart item" do
         expect {
-          post '/cart', params: { product_id: product.id, quantity: 3 }
+          post '/cart/add_item', params: { product_id: product.id, quantity: 3 }
         }.not_to change(CartItem, :count)
 
         expect(response).to have_http_status(:created)
@@ -58,7 +58,7 @@ RSpec.describe "/carts", type: :request do
       allow_any_instance_of(CartsController).to receive(:session).and_return({ cart_id: cart.id })
 
       expect {
-        post '/cart', params: { product_id: product.id, quantity: 1 }
+        post '/cart/add_item', params: { product_id: product.id, quantity: 1 }
       }.to change { cart.reload.last_interaction_at }
     end
   end

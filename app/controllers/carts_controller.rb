@@ -1,15 +1,15 @@
 class CartsController < ApplicationController
   include CurrentCart
 
-  before_action :set_cart, only: [:show, :create, :destroy, :add_item]
+  before_action :set_cart, only: [:show, :destroy, :add_item]
 
   # GET /cart
   def show
     render json: format_cart(@cart)
   end
 
-  # POST /cart
-  def create
+  # POST /cart/add_item
+  def add_item
     product = Product.find(cart_params[:product_id])
     quantity = cart_params[:quantity].to_i
 
@@ -27,11 +27,6 @@ class CartsController < ApplicationController
     else
       render json: @cart_item.errors, status: :unprocessable_entity
     end
-  end
-
-  # POST /cart/add_item
-  def add_item
-    create
   end
 
   # DELETE /cart/:product_id
