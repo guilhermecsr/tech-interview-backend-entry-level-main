@@ -1,5 +1,5 @@
 carts_cleanup:
-  cron: "0 * * * *" # A cada hora no minuto 0
-  class: "CartsCleanupJob"
+  cron: "* * * * *" # A cada minuto
+  class: "MarkCartAsAbandonedJob"
   queue: "default"
   description: "Job para marcar carrinhos como abandonados e remover os muito antigos."

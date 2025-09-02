@@ -13,10 +13,6 @@ class Cart < ApplicationRecord
     update(status: :abandoned, abandoned_at: Time.current)
   end
 
-  def remove_if_abandoned
-    destroy
-  end
-
   def total_price
     cart_items.reload.to_a.sum(&:total_price)
   end

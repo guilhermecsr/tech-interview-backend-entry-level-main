@@ -16,6 +16,6 @@ RSpec.describe CartsCleanupJob, type: :job do
     expect(active_cart_to_abandon.reload.status).to eq('abandoned')
     expect(active_cart_to_abandon.reload.abandoned_at).to be_within(1.second).of(Time.current)
     expect(Cart.exists?(abandoned_cart_ok.id)).to be_truthy
-    expect(Cart.exists?(abandoned_cart_to_delete.id)).to be_falsy
+    expect(Cart.exists?(abandoned_cart_to_delete.id)).to be_falsey
   end
 end

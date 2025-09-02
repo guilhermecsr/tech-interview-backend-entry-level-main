@@ -1,44 +1,53 @@
 class CartsController < ApplicationController
   include CurrentCart
 
-  before_action :set_cart, only: [:show, :destroy, :add_item]
+  before_action :set_cart, only: [:create, :show, :destroy, :add_item]
 
   # GET /cart
   def show
     render json: format_cart(@cart)
   end
 
-  # POST /cart/add_item
-  def add_item
-    product = Product.find(cart_params[:product_id])
-    quantity = cart_params[:quantity].to_i
+  def create
+    service = Carts::Create.new(
+      cart: @cart,
+      product_id: cart_params[:product_id],
+      quantity: cart_params[:quantity]
+    )
 
-    @cart_item = @cart.cart_items.find_by(product_id: product.id)
-
-    if @cart_item
-      @cart_item.quantity += quantity
-    else
-      @cart_item = @cart.cart_items.build(product: product, quantity: quantity)
-    end
-
-    if @cart_item.save
-      @cart.touch(:last_interaction_at)
+    if service.call
       render json: format_cart(@cart), status: :created
     else
-      render json: @cart_item.errors, status: :unprocessable_entity
+      render json: { errors: @cart.errors.messages }, status: :unprocessable_entity
+    end
+  end
+
+  # POST /cart/add_item
+  def add_item
+    service = Carts::AddItem.new(
+      cart: @cart,
+      product_id: cart_params[:product_id],
+      quantity: cart_params[:quantity]
+    )
+
+    if service.call
+      render json: format_cart(@cart), status: :created
+    else
+      render json: { errors: @cart.errors.messages }, status: :unprocessable_entity
     end
   end
 
   # DELETE /cart/:product_id
   def destroy
-    cart_item = @cart.cart_items.find_by(product_id: params[:product_id])
+    service = Carts::Destroy.new(
+      cart: @cart,
+      product_id: params[:product_id]
+    )
 
-    if cart_item
-      cart_item.destroy
-      @cart.touch(:last_interaction_at)
-      render json: format_cart(@cart)
+    if service.call
+      render json: format_cart(@cart), status: :ok
     else
-      render json: { error: 'Product not found in cart' }, status: :not_found
+      render json: { errors: @cart.errors.messages }, status: :unprocessable_entity
     end
   end
 
@@ -56,11 +65,11 @@ class CartsController < ApplicationController
           id: item.product.id,
           name: item.product.name,
           quantity: item.quantity,
-          unit_price: item.product.price,
-          total_price: item.total_price.to_f
+          unit_price: item.product.price.to_f.round(2),
+          total_price: item.total_price.to_f.round(2)
         }
       end,
-      total_price: cart.total_price.to_f
+      total_price: cart.total_price.to_f.round(2)
     }
   end
 end
