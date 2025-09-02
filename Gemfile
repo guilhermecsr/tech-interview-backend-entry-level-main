@@ -15,6 +15,7 @@ gem 'sidekiq-cron'
 gem 'guard'
 gem 'guard-livereload', require: false
 
+gem 'blueprinter'
 
 group :development, :test do
   gem 'pry-rails'

@@ -5,7 +5,7 @@ class CartsController < ApplicationController
 
   # GET /cart
   def show
-    render json: format_cart(@cart)
+    render json: CartBlueprint.render(cart_with_associations)
   end
 
   def create
@@ -16,7 +16,7 @@ class CartsController < ApplicationController
     )
 
     if service.call
-      render json: format_cart(@cart), status: :created
+      render json: CartBlueprint.render(cart_with_associations), status: :created
     else
       render json: { errors: @cart.errors.messages }, status: :unprocessable_entity
     end
@@ -31,7 +31,7 @@ class CartsController < ApplicationController
     )
 
     if service.call
-      render json: format_cart(@cart), status: :created
+      render json: CartBlueprint.render(cart_with_associations), status: :created
     else
       render json: { errors: @cart.errors.messages }, status: :unprocessable_entity
     end
@@ -45,7 +45,7 @@ class CartsController < ApplicationController
     )
 
     if service.call
-      render json: format_cart(@cart), status: :ok
+      render json: CartBlueprint.render(cart_with_associations), status: :ok
     else
       render json: { errors: @cart.errors.messages }, status: :unprocessable_entity
     end
@@ -57,19 +57,8 @@ class CartsController < ApplicationController
     params.permit(:product_id, :quantity)
   end
 
-  def format_cart(cart)
-    {
-      id: cart.id,
-      products: cart.cart_items.map do |item|
-        {
-          id: item.product.id,
-          name: item.product.name,
-          quantity: item.quantity,
-          unit_price: item.product.price.to_f.round(2),
-          total_price: item.total_price.to_f.round(2)
-        }
-      end,
-      total_price: cart.total_price.to_f.round(2)
-    }
+  def cart_with_associations
+    @cart.class.includes(cart_items: :product).find(@cart.id)
   end
 end
+
