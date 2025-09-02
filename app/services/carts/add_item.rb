@@ -9,7 +9,7 @@ module Carts
     def call
       Cart.transaction do
         cart_item.increment!(:quantity, @quantity.to_i)
-        @cart.touch(:last_interaction_at) if cart_item.save!
+        @cart.update(last_interaction_at: Time.current, total_price: @cart.current_total_price) if cart_item.save!
       end
 
       true

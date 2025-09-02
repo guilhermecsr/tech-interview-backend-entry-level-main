@@ -47,7 +47,7 @@ RSpec.describe "/carts", type: :request do
             "total_price": (2 * product.price.to_f).round(2),
           }
         ],
-          "total_price": cart.total_price.to_f.round(2)
+          "total_price": cart.reload.total_price.to_f.round(2)
         }.to_json
       end
 
@@ -75,7 +75,7 @@ RSpec.describe "/carts", type: :request do
         json_response = JSON.parse(response.body)
         expect(json_response['products'].first['quantity']).to eq(3)
         expect(json_response['products'].first['total_price']).to eq(3 * product.price.to_f.round(2))
-        expect(json_response['total_price']).to eq(cart.total_price.to_f.round(2))
+        expect(json_response['total_price']).to eq(cart.reload.total_price.to_f.round(2))
       end
 
       it 'updates the last_interaction_at timestamp of the cart' do
@@ -136,7 +136,7 @@ RSpec.describe "/carts", type: :request do
               "total_price": (5 * itens.last.product.price.to_f).round(2)
             },
           ],
-          "total_price": cart.total_price.to_f.round(2)
+          "total_price": cart.reload.total_price.to_f.round(2)
         }.to_json
       end
 

@@ -2,6 +2,8 @@ class Cart < ApplicationRecord
   has_many :cart_items, dependent: :destroy
   has_many :products, through: :cart_items
 
+  after_initialize { self.total_price ||= 0 }
+
   enum status: { active: 0, abandoned: 1 }
 
   validates :total_price, numericality: { greater_than_or_equal_to: 0 }
@@ -13,8 +15,8 @@ class Cart < ApplicationRecord
     update(status: :abandoned, abandoned_at: Time.current)
   end
 
-  def total_price
-    cart_items.reload.to_a.sum(&:total_price)
+  def current_total_price
+    cart_items.reload.includes(:product).to_a.sum(&:total_price)
   end
 end
 
